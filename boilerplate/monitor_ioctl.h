@@ -9,17 +9,16 @@
 #include <sys/types.h>
 #endif
 
-#define MONITOR_NAME_LEN 32
+#define MONITOR_IOC_MAGIC 'm'
 
-struct monitor_request {
+struct monitor_req {
     pid_t pid;
-    unsigned long soft_limit_bytes;
-    unsigned long hard_limit_bytes;
-    char container_id[MONITOR_NAME_LEN];
+    unsigned long soft_limit_mib;
+    unsigned long hard_limit_mib;
+    char id[64];
 };
 
-#define MONITOR_MAGIC 'M'
-#define MONITOR_REGISTER _IOW(MONITOR_MAGIC, 1, struct monitor_request)
-#define MONITOR_UNREGISTER _IOW(MONITOR_MAGIC, 2, struct monitor_request)
+#define MONITOR_IOCTL_REGISTER   _IOW(MONITOR_IOC_MAGIC, 1, struct monitor_req)
+#define MONITOR_IOCTL_UNREGISTER _IOW(MONITOR_IOC_MAGIC, 2, pid_t)
 
 #endif
