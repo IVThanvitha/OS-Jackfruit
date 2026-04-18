@@ -267,8 +267,3 @@ This project helps you understand:
 
 ---
 
-## 📜 License
-
-This project is for academic and educational purposes.
-
----
