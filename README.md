@@ -1,36 +1,67 @@
-# Multi-Container Runtime
 
-A lightweight Linux container runtime in C with a long-running supervisor and a kernel-space memory monitor.
+# 🚀 Multi-Container Runtime (OS Jackfruit)
 
-Read [`project-guide.md`](project-guide.md) for the full project specification.
+A lightweight **Linux container runtime written in C**, featuring:
+
+* A **user-space supervisor (engine)**
+* A **kernel-space memory monitor module**
+* Support for running **multiple isolated containers**
+* Resource monitoring and control mechanisms
+
+This project demonstrates core **Operating Systems concepts** including:
+
+* Process isolation (namespaces)
+* Resource control
+* Kernel-user communication (ioctl)
+* Container lifecycle management
 
 ---
 
-## Getting Started
+## 📌 Features
 
-### 1. Fork the Repository
+* 🧠 Custom container runtime (no Docker used)
+* ⚙️ Supervisor process to manage containers
+* 🧩 Kernel module for memory monitoring
+* 🔄 Multiple container support
+* 📊 CPU & memory stress testing utilities
+* 🔐 Namespace-based isolation
 
-1. Go to [github.com/shivangjhalani/OS-Jackfruit](https://github.com/shivangjhalani/OS-Jackfruit)
-2. Click **Fork** (top-right)
-3. Clone your fork:
+---
 
-```bash
-git clone https://github.com/<your-username>/OS-Jackfruit.git
-cd OS-Jackfruit
-```
+## 🛠️ Tech Stack
 
-### 2. Set Up Your VM
+* **Language:** C
+* **OS:** Linux (Ubuntu 22.04 / 24.04)
+* **Concepts Used:**
 
-You need an **Ubuntu 22.04 or 24.04** VM with **Secure Boot OFF**. WSL will not work.
+  * Linux Namespaces
+  * cgroups (optional extension)
+  * Kernel Modules
+  * System Calls & ioctl
+  * Process Scheduling
 
-Install dependencies:
+---
+
+## ⚙️ Prerequisites
+
+Make sure you have:
+
+* Ubuntu **22.04 or 24.04** (VM recommended)
+* **Secure Boot disabled**
+* VirtualBox / VMware (WSL not supported ❌)
+
+Install required packages:
 
 ```bash
 sudo apt update
 sudo apt install -y build-essential linux-headers-$(uname -r)
 ```
 
-### 3. Run the Environment Check
+---
+
+## 🧪 Environment Setup
+
+Run the environment check:
 
 ```bash
 cd boilerplate
@@ -38,74 +69,206 @@ chmod +x environment-check.sh
 sudo ./environment-check.sh
 ```
 
-Fix any issues reported before moving on.
+Fix any warnings/errors before proceeding.
 
-### 4. Prepare the Root Filesystem
+---
+
+## 📂 Project Structure
+
+```
+OS-Jackfruit/
+│
+├── boilerplate/
+│   ├── engine.c              # Main runtime + supervisor
+│   ├── monitor.c             # Kernel module
+│   ├── monitor_ioctl.h       # Shared interface (ioctl)
+│   ├── Makefile              # Build system
+│   ├── cpu_hog.c             # CPU stress test
+│   ├── memory_hog.c          # Memory stress test
+│   ├── io_pulse.c            # I/O simulation
+│   └── environment-check.sh  # Setup validator
+│
+├── project-guide.md          # Detailed project explanation
+└── README.md                 # Documentation
+```
+
+---
+
+## 🧱 Root Filesystem Setup
+
+Download and prepare a minimal root filesystem:
 
 ```bash
 mkdir rootfs-base
-wget https://dl-cdn.alpinelinux.org/alpine/v3.20/releases/x86_64/alpine-minirootfs-3.20.3-x86_64.tar.gz
-tar -xzf alpine-minirootfs-3.20.3-x86_64.tar.gz -C rootfs-base
 
-# Make one writable copy per container you plan to run
-cp -a ./rootfs-base ./rootfs-alpha
-cp -a ./rootfs-base ./rootfs-beta
+wget https://dl-cdn.alpinelinux.org/alpine/v3.20/releases/x86_64/alpine-minirootfs-3.20.3-x86_64.tar.gz
+
+tar -xzf alpine-minirootfs-3.20.3-x86_64.tar.gz -C rootfs-base
 ```
 
-Do not commit `rootfs-base/` or `rootfs-*` directories to your repository.
+Create container instances:
 
-### 5. Understand the Boilerplate
+```bash
+cp -a rootfs-base rootfs-alpha
+cp -a rootfs-base rootfs-beta
+```
 
-The `boilerplate/` folder contains starter files:
+⚠️ Do NOT commit these directories to Git.
 
-| File                   | Purpose                                             |
-| ---------------------- | --------------------------------------------------- |
-| `engine.c`             | User-space runtime and supervisor skeleton          |
-| `monitor.c`            | Kernel module skeleton                              |
-| `monitor_ioctl.h`      | Shared ioctl command definitions                    |
-| `Makefile`             | Build targets for both user-space and kernel module |
-| `cpu_hog.c`            | CPU-bound test workload                             |
-| `io_pulse.c`           | I/O-bound test workload                             |
-| `memory_hog.c`         | Memory-consuming test workload                      |
-| `environment-check.sh` | VM environment preflight check                      |
+---
 
-Use these as your starting point. You are free to restructure the repository however you want — the submission requirements are listed in the project guide.
+## 🔨 Build Instructions
 
-### 6. Build and Verify
+Navigate to boilerplate:
 
 ```bash
 cd boilerplate
 make
 ```
 
-If this compiles without errors, your environment is ready.
+This will build:
 
-### 7. GitHub Actions Smoke Check
-
-Your fork will inherit a minimal GitHub Actions workflow from this repository.
-
-That workflow only performs CI-safe checks:
-
-- `make -C boilerplate ci`
-- user-space binary compilation (`engine`, `memory_hog`, `cpu_hog`, `io_pulse`)
-- `./boilerplate/engine` with no arguments must print usage and exit with a non-zero status
-
-The CI-safe build command is:
-
-```bash
-make -C boilerplate ci
-```
-
-This smoke check does not test kernel-module loading, supervisor runtime behavior, or container execution.
+* `engine` → user-space runtime
+* `monitor.ko` → kernel module
+* test programs
 
 ---
 
-## What to Do Next
+## 🧩 Load Kernel Module
 
-Read [`project-guide.md`](project-guide.md) end to end. It contains:
+```bash
+sudo insmod monitor.ko
+```
 
-- The six implementation tasks (multi-container runtime, CLI, logging, kernel monitor, scheduling experiments, cleanup)
-- The engineering analysis you must write
-- The exact submission requirements, including what your `README.md` must contain (screenshots, analysis, design decisions)
+Verify:
 
-Your fork's `README.md` should be replaced with your own project documentation as described in the submission package section of the project guide. (As in get rid of all the above content and replace with your README.md)
+```bash
+lsmod | grep monitor
+```
+
+---
+
+## ▶️ Running the Runtime
+
+Start the supervisor:
+
+```bash
+sudo ./engine supervisor ../rootfs-alpha
+```
+
+If multiple containers are supported:
+
+```bash
+sudo ./engine supervisor ../rootfs-alpha ../rootfs-beta
+```
+
+---
+
+## 🔍 How It Works
+
+### 1. Supervisor (`engine.c`)
+
+* Creates containers using **fork + namespaces**
+* Manages lifecycle (start, stop, monitor)
+* Communicates with kernel module
+
+### 2. Kernel Module (`monitor.c`)
+
+* Tracks memory usage
+* Provides interface via **ioctl**
+* Helps enforce resource awareness
+
+### 3. Isolation Mechanism
+
+* PID namespace → separate process trees
+* Mount namespace → isolated filesystem
+* (Optional) Network namespace
+
+---
+
+## 📡 Kernel–User Communication
+
+* Implemented using **ioctl interface**
+* Defined in:
+
+```c
+monitor_ioctl.h
+```
+
+Used for:
+
+* Sending process info
+* Querying memory stats
+
+---
+
+## ⚠️ Common Issues & Fixes
+
+### ❌ `/dev/container_monitor` not found
+
+➡️ Ensure kernel module is loaded:
+
+```bash
+sudo insmod monitor.ko
+```
+
+---
+
+### ❌ Permission errors
+
+➡️ Always run with `sudo`
+
+---
+
+### ❌ Make shows “Nothing to be done”
+
+➡️ Clean and rebuild:
+
+```bash
+make clean
+make
+```
+
+---
+
+### ❌ VM is slow
+
+➡️ Increase:
+
+* RAM (≥ 4GB)
+* CPU cores (≥ 2)
+
+---
+
+## 📈 Possible Improvements
+
+* Add **cgroups** for strict resource limits
+* Implement container networking
+* Add CLI commands (`start`, `stop`, `status`)
+* Logging & monitoring dashboard
+* Docker-like UX
+
+---
+
+## 📚 Learning Outcomes
+
+This project helps you understand:
+
+* Container internals (without Docker)
+* Kernel module development
+* OS-level resource management
+* Process isolation techniques
+
+---
+
+## 👨‍💻 Author
+
+**I.V. THANVITHA**
+
+---
+
+## 📜 License
+
+This project is for academic and educational purposes.
+
+---
